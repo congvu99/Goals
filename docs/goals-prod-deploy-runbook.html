@@ -2,39 +2,53 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deploy Goals lên VPS</title>
 <style>body{max-width:960px;margin:auto;padding:24px;font:16px/1.7 system-ui;color:#24332f;background:#f7f8f5}h2{margin-top:40px;border-bottom:1px solid #ccd5cc}pre{background:#192a2b;color:#eff9f2;padding:18px;border-radius:8px;overflow:auto;font:13px/1.7 Consolas,monospace}code{font-family:Consolas,monospace}td,th{padding:10px;text-align:left;border-bottom:1px solid #ccd5cc}table{width:100%;border-collapse:collapse}.note{border-left:4px solid #21816b;background:#e7efe9;padding:16px}nav a{display:inline-block;margin:5px 12px}footer{margin-top:40px;font-size:14px}</style></head><body>
 <h1>Deploy Goals lên VPS</h1><p>Runbook · 27/10/2026 · Repository <strong>congvu99/Goals</strong></p>
+<p class="note"><strong>Code đã push thành công lên GitHub.</strong> Repo hiện dùng <a href="https://github.com/congvu99/Goals">congvu99/Goals</a>, nhánh <code>main</code>. Nếu deploy lần đầu, bắt đầu từ <a href="#prepare">mục 3</a>, rồi làm mục 4 → 5. Nếu website đã chạy, dùng <a href="#update">mục 6</a>. Chưa thực hiện deploy trên VPS.</p>
 <p class="note">Dự án hiện là một trang HTML tự chứa CSS và JavaScript: <code>ke-hoach-phan-bo-7-2-trieu.html</code>. Không cần backend, database, .env hoặc npm build. Mã hiện tại không gọi API và không lưu lựa chọn bằng localStorage. Tài liệu đã đối chiếu cấu trúc local; chưa kiểm tra hoặc deploy trên VPS.</p>
 <nav><a href="#env">1. Môi trường</a><a href="#git">2. GitHub</a><a href="#prepare">3. VPS</a><a href="#deploy">4. Deploy</a><a href="#verify">5. Kiểm tra</a><a href="#update">6. Cập nhật</a><a href="#rollback">7. Backup/rollback</a><a href="#errors">8. Sự cố</a></nav>
 <h2 id="env">1. Môi trường Goals</h2>
 <table><tr><th>Thông số</th><th>Giá trị</th></tr><tr><td>Repo / nhánh</td><td>https://github.com/congvu99/Goals.git / main</td></tr><tr><td>Máy dev / code VPS</td><td>D:\project\plan / /srv/apps/goals</td></tr><tr><td>VPS dự kiến</td><td>62.171.135.240 · SSH alias vps · user deploy</td></tr><tr><td>Domain dự kiến</td><td>goals.congvu.duckdns.org</td></tr><tr><td>Web root host → container</td><td>/srv/caddy/conf/goals-public → /etc/caddy/goals-public</td></tr><tr><td>Site Caddy / backup</td><td>/srv/caddy/conf/sites/goals.caddy / /srv/backups/goals</td></tr></table>
 <p>Repo được xác nhận từ Git remote local. IP và SSH kế thừa tài liệu mẫu; domain Goals là đề xuất chưa xác nhận hoạt động. Thay đồng nhất các giá trị nếu môi trường thực tế khác.</p>
 <p class="note">Quy trình yêu cầu Caddy dùng chung bind-mount cả <code>/srv/caddy/conf</code> vào <code>/etc/caddy</code> và import <code>sites/*.caddy</code>. Chỉ chép HTML ứng dụng vào web root, không phục vụ cả repo, .git, docs hay nhật ký.</p>
-<h2 id="git">2. Đẩy code lên GitHub</h2><p>WINDOWS — PowerShell. Git, main và origin đã có; không cần khởi tạo lại.</p>
-<pre>Set-Location D:\project\plan
+<h2 id="git">2. Repository đã sẵn sàng</h2><p>Đã push code ứng dụng và tài liệu lên <code>https://github.com/congvu99/Goals.git</code>. Không cần chạy lại <code>git init</code>, thêm tiêu đề README, tạo first commit hoặc <code>git remote add origin</code>.</p>
+<p>WINDOWS — Git Bash (terminal MINGW64 bạn đang dùng). Chỉ chạy phần kiểm tra sau nếu cần:</p>
+<pre>cd /d/project/plan
 git remote -v
-git status --short
+git status --short --branch
+git log -1 --oneline</pre>
+<p>Origin phải là <code>https://github.com/congvu99/Goals.git</code>. Nếu một bản clone khác vẫn trỏ repo cũ, sửa một lần bằng:</p>
+<pre>git remote set-url origin https://github.com/congvu99/Goals.git</pre>
+<p>Khi có thay đổi mới cần phát hành, chạy trong Git Bash trên máy dev:</p>
+<pre>cd /d/project/plan
 git add -- README.md ke-hoach-phan-bo-7-2-trieu.html docs/goals-prod-deploy-runbook.html
 git diff --cached --check
 git diff --cached --stat
-git commit -m "Document Goals deployment and add application"
-git push -u origin main</pre>
-<p>Bỏ commit nếu không có thay đổi. Trên GitHub phải có file HTML ứng dụng, không chỉ README. Nếu gặp lỗi 403: cấp quyền repo cho tài khoản đang xác thực hoặc đăng nhập tài khoản có quyền rồi push lại. Không đưa token vào URL remote.</p>
-<h2 id="prepare">3. Kiểm tra VPS</h2><p>WINDOWS</p><pre>ssh vps
+git commit -m "Update Goals"
+git push origin main</pre>
+<p>Bỏ commit nếu không có thay đổi. Chỉ triển khai phiên bản mới sau khi push thành công. Nếu gặp 403, kiểm tra origin và tài khoản GitHub có quyền với repo này; không đưa token vào URL remote.</p>
+<h2 id="prepare">3. Kiểm tra VPS</h2><p>WINDOWS — Git Bash hoặc PowerShell</p><pre>ssh vps
 # Hoặc: ssh deploy@62.171.135.240</pre><p>SERVER — Bash</p>
-<pre>whoami
+<pre>(
+set -eu
+test "$(whoami)" = deploy
 cd /srv/caddy
 docker compose ps
 docker inspect "$(docker compose ps -q caddy)" --format '{{json .Mounts}}'
 docker compose exec caddy cat /etc/caddy/Caddyfile
 test -w /srv/apps
 test -w /srv/caddy/conf/sites
-df -h</pre>
+df -h
+)</pre>
 <p>User cần là deploy; nếu root thì dùng <code>su - deploy</code>. Kiểm tra mount Source /srv/caddy/conf → Destination /etc/caddy và import sites/*.caddy (hoặc đường dẫn tuyệt đối tương đương). Nếu khác, dừng để điều chỉnh đường dẫn/mount. DNS A/AAAA cần trỏ đúng VPS và cổng 80/443 truy cập được. Không tạo Caddy thứ hai hoặc mở cổng ứng dụng riêng.</p>
 <h2 id="deploy">4. Deploy lần đầu</h2><h3>4.1. Clone đúng repo</h3><p>SERVER</p>
-<pre>cd /srv/apps &amp;&amp; git clone --branch main https://github.com/congvu99/Goals.git goals
+<pre>(
+set -eu
+cd /srv/apps
+git clone --branch main https://github.com/congvu99/Goals.git goals
 cd /srv/apps/goals
 git remote -v
 git log --oneline -1
-test -s ke-hoach-phan-bo-7-2-trieu.html</pre>
+test -s ke-hoach-phan-bo-7-2-trieu.html
+)</pre>
 <p>Clone/kiểm tra file lỗi thì dừng. Nếu thư mục đã tồn tại, kiểm tra repo trong đó, không xóa để clone lại. Repo private cần quyền đọc GitHub cho user deploy.</p>
 <h3>4.2. Chép HTML thành trang chủ</h3><p>Chỉ chạy khi chưa có index.html; lần sau dùng mục 6. SERVER:</p>
 <pre>(
@@ -48,7 +62,7 @@ test -s ke-hoach-phan-bo-7-2-trieu.html</pre>
   mv /srv/caddy/conf/goals-public/index.html.new /srv/caddy/conf/goals-public/index.html
   git rev-parse HEAD &gt; /srv/backups/goals/deployed-commit.txt
 )</pre>
-<h3>4.3. Thêm site Caddy</h3><p>SERVER — từ chối ghi đè file site đã có:</p>
+<h3>4.3. Thêm site Caddy</h3><p>SERVER — chỉ tạo file khi chưa có site Goals; khối lệnh dừng ngay nếu có lỗi:</p>
 <pre>(
   set -eu
   set -o noclobber
@@ -60,13 +74,13 @@ goals.congvu.duckdns.org {
     file_server
 }
 EOF
-)
 cd /srv/caddy
 docker compose exec caddy test -r /etc/caddy/goals-public/index.html
 docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile &amp;&amp; \
-docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile</pre>
+docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
+)</pre>
 <p>Nếu site đã có, xem và chỉnh file đó; lưu backup ngoài thư mục sites. Chỉ reload khi validate thành công. Caddy phục vụ index.html tại / và tự quản lý HTTPS khi DNS/cổng đúng.</p>
-<h2 id="verify">5. Nghiệm thu</h2><p>WINDOWS</p>
+<h2 id="verify">5. Nghiệm thu</h2><p>WINDOWS — PowerShell (mở tab PowerShell riêng; Resolve-DnsName không phải lệnh Git Bash). Nếu đang SSH, chạy exit để về máy dev trước.</p>
 <pre>Resolve-DnsName goals.congvu.duckdns.org
 curl.exe -sS -o NUL -w "%{http_code}\n" https://goals.congvu.duckdns.org/
 curl.exe -sS -o NUL -w "%{http_code}\n" https://goals.congvu.duckdns.org/khong-ton-tai
@@ -77,7 +91,7 @@ curl.exe -sSI https://goals.congvu.duckdns.org/</pre>
 <p>SERVER — hai hash phải giống nhau sau deploy thông thường:</p>
 <pre>sha256sum /srv/apps/goals/ke-hoach-phan-bo-7-2-trieu.html /srv/caddy/conf/goals-public/index.html
 cat /srv/backups/goals/deployed-commit.txt</pre>
-<h2 id="update">6. Cập nhật</h2><p>Push code lên main trước. Chỉ một người chạy deploy/rollback tại một thời điểm. SERVER:</p>
+<h2 id="update">6. Cập nhật</h2><p>Push code lên main theo mục 2 trước, sau đó <code>ssh vps</code>. Chỉ một người chạy deploy/rollback tại một thời điểm. Khối dưới dành cho website đã triển khai xong mục 4, có index.html và deployed-commit.txt. SERVER:</p>
 <pre>(
   set -eu
   cd /srv/apps/goals
@@ -113,7 +127,7 @@ cat /srv/backups/goals/deployed-commit.txt</pre>
     printf 'restored from %s; commit unknown\n' "$backup" &gt; /srv/backups/goals/deployed-commit.txt
   fi
 )</pre>
-<p>Kiểm tra lại mục 5, đối chiếu hash với backup đã chọn. Rollback HTML không đổi HEAD của repo; lần cập nhật sau phát hành code trên main.</p><p>WINDOWS — bản sao ngoài VPS:</p>
+<p>Kiểm tra lại mục 5, đối chiếu hash với backup đã chọn. Rollback HTML không đổi HEAD của repo; lần cập nhật sau phát hành code trên main.</p><p>WINDOWS — PowerShell, sao lưu ra ngoài VPS:</p>
 <pre>New-Item -ItemType Directory -Force D:\backup\goals
 scp -r vps:/srv/backups/goals D:\backup\goals\
 scp vps:/srv/caddy/conf/sites/goals.caddy D:\backup\goals\</pre>
