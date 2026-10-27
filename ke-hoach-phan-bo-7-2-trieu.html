@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14293a"><title>Kế hoạch tài chính · Công Vũ</title><style>
+:root{color-scheme:light;--bg:#f3f5f7;--surface:#fff;--ink:#14232f;--muted:#5d6b78;--line:#e3e8ec;--brand:#0b7a7e;--brand-soft:#e3f2f1;--navy:#14293a;--warn:#9a5a06;--warn-soft:#fff3dd;--good:#1d7a46;--good-soft:#e6f4ea;--radius:16px;--gutter:16px;--nav-h:64px}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);-webkit-tap-highlight-color:transparent}
+button,select,input{font:inherit;font-size:16px;color:var(--ink)}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #49b9c4;outline-offset:2px}
+.num,.a,td,th,time{font-variant-numeric:tabular-nums}h1,h2,h3,p{margin:0}h1{font-size:28px;line-height:1.2;letter-spacing:-.6px}h2{font-size:18px;line-height:1.3}.muted{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700;margin-bottom:6px}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:20px;padding:10px max(28px,env(safe-area-inset-right)) 10px max(28px,env(safe-area-inset-left));background:var(--navy);color:#fff}.brand{font-size:20px;font-weight:750;letter-spacing:-.6px;white-space:nowrap}.brand span{color:#64d2ce}
+.tabs{display:flex;gap:4px;margin-left:auto}.tabs button{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:0;border-radius:10px;background:transparent;color:#c8d8e1;transition:background .15s,color .15s}.tabs button:hover{background:#21404f;color:#fff}.tabs button[aria-current="page"]{background:#2b4b5b;color:#fff}.tabs svg{width:20px;height:20px;flex:none}
+.print{min-height:44px;padding:8px 14px;border:1px solid #3c5a69;border-radius:10px;background:transparent;color:#fff}.print:hover{background:#21404f}
+main{max-width:1180px;margin:0 auto;padding:28px 28px 48px}.tab{display:none}.tab.active{display:block}
+.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.assume{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.seg{display:inline-flex;padding:3px;border-radius:12px;background:#e6ebef}.seg button{min-height:44px;padding:6px 14px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:15px;font-weight:600;transition:background .15s,color .15s}.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,35,47,.15)}
+.field{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--muted)}select,input[type=month]{min-height:44px;padding:8px 12px;border:1px solid #ccd6de;border-radius:10px;background:var(--surface)}
+.card,.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}.panel{padding:20px;margin-bottom:16px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.answers{display:grid;grid-template-columns:1fr 1.35fr;grid-template-areas:"bike retire" "house retire";gap:14px;margin-bottom:16px}#ansBike{grid-area:bike}#ansHouse{grid-area:house}#ansRetire{grid-area:retire}.answer{padding:20px;display:flex;flex-direction:column;gap:6px}.answer .q{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted)}.answer .q svg{width:20px;height:20px;color:var(--brand)}.answer .a{font-size:36px;font-weight:780;letter-spacing:-1.2px;line-height:1.1}.answer p{font-size:14px;color:var(--muted)}
+.answer.retire{background:var(--navy);border-color:var(--navy);color:#fff}.answer.retire .q,.answer.retire p{color:#bad0db}.answer.retire .q svg{color:#64d2ce}.answer.retire .a{font-size:40px}
+.progress{height:10px;border-radius:10px;background:rgba(255,255,255,.16);overflow:hidden;margin:6px 0 2px}.progress i{display:block;height:100%;border-radius:10px;background:#64d2ce}
+.chip{display:inline-block;align-self:flex-start;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:650;background:var(--brand-soft);color:#096c68}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.good{background:var(--good-soft);color:var(--good)}
+.tip{margin-top:6px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.08);font-size:14px;color:#e4eef3}.tip b{color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid2 .panel{margin-bottom:16px}
+.timeline{list-style:none;margin:0;padding:0;display:grid}.timeline li{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);position:relative}.timeline li:last-child{border-bottom:0}.tl-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#f1f5f8;background:color-mix(in srgb,var(--c) 14%,white);color:var(--c)}.tl-icon svg{width:22px;height:22px}.timeline b{display:block;font-size:16px}.timeline small{display:block;font-size:14px;color:var(--muted)}.timeline time{font-size:18px;font-weight:700;text-align:right}.timeline .warn{color:var(--warn)}
+.stepper{display:flex;align-items:center;gap:6px}.stepper button{width:44px;height:44px;border:1px solid #ccd6de;border-radius:10px;background:var(--surface);font-size:20px;line-height:1}.stepper button:hover{background:#edf5f5}.stepper button:disabled{opacity:.4;cursor:default}
+.monthtotal{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}.monthtotal b{font-size:30px;letter-spacing:-.8px}.monthtotal small{color:var(--muted);font-size:14px}
+.stack{display:flex;height:14px;border-radius:10px;overflow:hidden;background:#edf1f4;gap:2px;margin-bottom:14px}.stack i{display:block;height:100%}
+.legendlist{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}.legendlist li{display:flex;align-items:center;gap:10px;font-size:15px}.legendlist b{margin-left:auto}.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.retirenow{display:grid;gap:2px;padding:14px 16px;margin-bottom:14px;border-radius:12px;background:var(--brand-soft)}.retirenow span{font-size:14px;color:#096c68;font-weight:600}.retirenow b{font-size:28px;letter-spacing:-.6px;color:var(--brand)}.retirenow small{font-size:13px;color:var(--muted)}
+th.hl,td.hl{background:#eaf5f4;color:#075f62;font-weight:700}thead th.hl{background:#d8eeec}tr.highlight td.hl{background:#d8eeec}
+.balances{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding-top:14px;border-top:1px solid var(--line)}.balances div{min-width:0}.balances dt{font-size:13px;color:var(--muted)}.balances dd{margin:2px 0 0;font-weight:700;font-size:16px}.balances dd small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-bottom:6px}.legend span{display:inline-flex;align-items:center;gap:6px}.legend .dash{width:16px;border-top:2px dashed var(--warn)}.chart{min-height:220px}.chart svg{display:block;width:100%;height:auto}
+.tablewrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}table{border-collapse:separate;border-spacing:0;width:100%;white-space:nowrap;font-size:14px}th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1}thead th{position:sticky;top:0;background:#eef3f6;font-size:12px;color:#4d606f;z-index:2}thead th:first-child{z-index:3;background:#eef3f6}tbody tr:hover td{background:#f0f7f7}tr.highlight td{background:#e9f5f2}.note{white-space:normal;min-width:180px;text-align:left}
+.toggle{min-height:44px;padding:8px 14px;border:1px solid #ccd6de;border-radius:10px;background:var(--surface);display:none}.tablenote{margin-top:12px;font-size:14px}
+.assumptions{display:grid;grid-template-columns:1fr 1fr;gap:16px}.assumptions .panel p{margin:8px 0;font-size:15px}.step{border-left:3px solid var(--brand);padding:3px 0 3px 14px;margin:16px 0;font-size:15px}.step b{display:block}
+.footer{font-size:13px;color:var(--muted);margin-top:20px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:1023px){.answers{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"bike house" "retire retire"}.grid2{grid-template-columns:1fr}.tabs button span{display:none}.tabs button{padding:8px 12px}}
+@media(max-width:760px){
+ :root{--radius:14px}
+ .topbar{position:static;padding:calc(10px + env(safe-area-inset-top)) var(--gutter) 10px}.print{display:none}
+ .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:var(--navy);border-top:1px solid #2b4b5b;justify-content:space-around}
+ .tabs button{flex:1;flex-direction:column;gap:2px;min-height:52px;padding:6px 4px;font-size:12px;border-radius:10px}.tabs button span{display:block}
+ main{padding:18px var(--gutter) calc(var(--nav-h) + 28px + env(safe-area-inset-bottom))}
+ h1{font-size:24px}.intro{margin-bottom:14px}.intro>.assume{width:100%;flex-wrap:nowrap}.seg button{padding:6px 12px}
+ .answers{gap:10px}.answer{padding:16px}.answer .a{font-size:28px}.answer.retire .a{font-size:36px}
+ .panel{padding:16px}.balances dd{font-size:15px}.monthtotal b{font-size:26px}
+ .tablewrap:not(.full) .x{display:none}.toggle{display:inline-block}
+ .assumptions{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.topbar,.tabs,.assume,.stepper,.toggle,.print{display:none!important}main{padding:0;max-width:none}.tab{display:block!important}#monthlyTab{display:none!important}.tablewrap{overflow:visible;max-height:none;border:0}.x{display:table-cell!important}th,td{position:static!important;padding:4px;font-size:9px}thead{display:table-header-group}.panel,.card{break-inside:avoid}.answers{grid-template-columns:1fr 1.35fr}.grid2{grid-template-columns:1fr 1fr}body{background:#fff}.answer.retire{color:#000;background:#fff;border-color:var(--line)}.answer.retire .q,.answer.retire p,.tip{color:#333}}
+</style></head><body>
+<header class="topbar"><div class="brand">Vũ<span> / </span>Finance</div>
+<nav class="tabs" aria-label="Điều hướng">
+<button data-tab="overview" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Tổng quan</span></button>
+<button data-tab="annualTab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M6 17V11M11 17V5M16 17v-8M21 17V8"/></svg><span>Từng năm</span></button>
+<button data-tab="monthlyTab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Từng tháng</span></button>
+<button data-tab="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span>Giả định</span></button>
+</nav><button class="print" onclick="window.print()">In / lưu PDF</button></header>
+<main>
+<section id="overview" class="tab active">
+<div class="intro"><div><p class="eyebrow">11/2026 → 10/2060 · 28 → 62 tuổi</p><h1>Khi nào bạn đạt được?</h1></div>
+<div class="assume"><span class="field" aria-hidden="true">Đầu tư</span><div class="seg" role="group" aria-label="Lợi nhuận đầu tư dài hạn mỗi năm"><button data-rate="a" aria-pressed="true">10%</button><button data-rate="b" aria-pressed="false">8%</button></div><label class="field" for="depositRate">Tiết kiệm<select id="depositRate"><option value="0">0%</option><option value="2">2%</option><option value="3">3%</option><option value="4" selected>4%</option><option value="5">5%</option><option value="6">6%</option></select></label></div></div>
+<div class="answers"><article class="card answer" id="ansBike" aria-live="polite"></article><article class="card answer" id="ansHouse" aria-live="polite"></article><article class="card answer retire" id="ansRetire" aria-live="polite"></article></div>
+<div class="grid2">
+<section class="panel"><div class="panelhead"><h2>Lộ trình các mốc</h2><span class="muted" style="font-size:14px">Theo kế hoạch, chưa phải số thực tế</span></div><ol class="timeline" id="timeline"></ol></section>
+<section class="panel"><div class="panelhead"><div><h2>Tháng này góp gì?</h2><span class="chip" id="phase"></span></div><div class="stepper"><button id="prev" aria-label="Tháng trước">‹</button><label class="sr-only" for="month">Tháng</label><input id="month" type="month" min="2026-11" max="2060-10" value="2026-11"><button id="next" aria-label="Tháng sau">›</button></div></div>
+<div class="monthtotal"><b id="budget"></b><small id="period"></small></div>
+<div class="stack" id="stack" aria-hidden="true"></div><ul class="legendlist" id="allocations"></ul>
+<div class="retirenow" id="retireNow" aria-live="polite"></div><dl class="balances" id="balances"></dl></section>
+</div>
+<section class="panel"><div class="panelhead"><div><h2>Quỹ hưu tăng thế nào</h2><p class="muted" style="font-size:14px">Riêng quỹ hưu · giá trị danh nghĩa · kịch bản <span class="rateLabel"></span></p></div></div>
+<div class="legend"><span><i class="dot" style="background:#0b7a7e"></i>Giá trị kỳ vọng</span><span><i class="dot" style="background:#a5b4c0"></i>Tiền tự góp</span><span><i class="dash"></i>Mục tiêu hưu</span></div><div class="chart" id="chart"></div></section>
+</section>
+<section id="annualTab" class="tab"><div class="panel"><div class="panelhead"><div><h2>Tổng kết từng năm</h2><span class="muted" style="font-size:14px">Đơn vị: triệu đồng · 2026 có 2 tháng; 2060 chốt tháng 10.</span></div><div class="assume" style="width:auto"><div class="seg" role="group" aria-label="Kịch bản lợi nhuận"><button data-rate="a" aria-pressed="true">10%</button><button data-rate="b" aria-pressed="false">8%</button></div><button class="toggle" data-table="annualWrap" aria-expanded="false">Hiện đủ cột</button></div></div>
+<div class="tablewrap" id="annualWrap"><table><thead><tr><th>Mốc</th><th>Tuổi</th><th class="x">Góp trong năm</th><th class="x">Vốn quỹ hưu</th><th class="x">Lãi quỹ hưu</th><th class="hl">Quỹ hưu kỳ vọng</th><th>Dự phòng</th><th class="x">Vốn nhà</th><th class="x">Lãi nhà · 10%</th><th>Nhà</th><th class="x">Mục tiêu nhà</th><th>Tổng còn giữ</th><th class="x">Sức mua 2026</th></tr></thead><tbody id="annualRows"></tbody></table></div>
+<p class="muted tablenote">Tổng còn giữ gồm dài hạn theo kịch bản đã chọn + dự phòng + nhà + tiền mua sắm chưa chi. Không cộng hai kịch bản với nhau. Sức mua quy về đầu kế hoạch với lạm phát giả định 3%/năm.</p></div></section>
+<section id="monthlyTab" class="tab"><div class="panel"><div class="panelhead"><div><h2>Lịch chuyển tiền hằng tháng</h2><span class="muted" style="font-size:14px">Đơn vị: triệu đồng · quỹ hưu kỳ vọng tính cả lãi, cuối mỗi tháng.</span></div><div class="assume" style="width:auto"><label class="field" for="year">Năm<select id="year"></select></label><div class="seg" role="group" aria-label="Kịch bản lợi nhuận quỹ hưu"><button data-rate="a" aria-pressed="true">10%</button><button data-rate="b" aria-pressed="false">8%</button></div><button class="toggle" data-table="monthlyWrap" aria-expanded="false">Hiện số dư</button></div></div>
+<div class="tablewrap" id="monthlyWrap"><table><thead id="monthlyHead"></thead><tbody id="monthlyRows"></tbody></table></div></div></section>
+<section id="rules" class="tab"><div class="assumptions"><div class="panel"><h2>Các giả định đang dùng</h2>
+<p>• Bắt đầu 11/2026, vốn ban đầu bằng 0; kết thúc 10/2060, đủ 408 tháng.</p>
+<p>• Tuổi 62 là mốc quy ước sau 34 năm, chưa dựa trên ngày sinh chính xác.</p>
+<p>• Lương 22 triệu − 7,2 triệu góp = 14,8 triệu sinh hoạt. Nếu vẫn chi 18 triệu, cần cân đối thêm 3,2 triệu/tháng. Thu nhập cần tăng tương ứng khi khoản góp tăng.</p>
+<p>• Góp cuối tháng, tái đầu tư toàn bộ lãi. Lợi nhuận 8%/10% là giả định sau phí và thuế, đổi sang lãi suất tháng tương đương.</p>
+<p>• Nhà mục tiêu 2,5 tỷ theo giá 10/2026; giá tương lai = 2,5 tỷ × 1,03^(số tháng/12). Đây là giả định tăng giá, không phải báo giá xây dựng. Quỹ nhà đầu tư kỳ vọng cố định 10%/năm sau phí, thuế. Nếu mốc nhà nằm sau tuổi 62, đó là dự phóng bổ sung, chỉ đúng nếu tiếp tục góp quỹ nhà sau 10/2060.</p>
+<p>• Quỹ dự phòng dùng lãi tiết kiệm chọn ở Tổng quan (mặc định 4%/năm, giả định, không phải báo giá hiện hành); tái tục gốc + lãi, mô phỏng tăng đều theo tháng. Laptop và xe không tính lãi.</p>
+<p>• Mục tiêu nghỉ hưu: chi tiêu 18 triệu/tháng theo giá hôm nay, tăng 3%/năm, tỷ lệ rút khởi điểm 3,5%/năm.</p>
+<p>• Ngân sách khởi điểm 7,2 triệu; từ 11/2028 cứ 24 tháng tăng 5% (tăng kép, tương đương khoảng 2,5%/năm, thấp hơn lạm phát giả định 3%). Phần tăng chia theo tỷ lệ cũ: dài hạn 4,2 : dự phòng + nhà 3. Từ 08/2027, 4,2 triệu × hệ số tăng dành dài hạn; tối đa 3 triệu × hệ số tăng vào dự phòng. Khi dự phòng đủ 108 triệu, tiền góp còn dư chuyển sang nhà ngay trong tháng.</p>
+<p>• Laptop chi 15 triệu trong 01/2027; xe chi 35 triệu trong 07/2027. Không tính lại giá trị đồ đã mua vào tài sản còn giữ.</p></div>
+<div class="panel"><h2>Quy tắc chuyển tiền</h2><div class="step"><b>11/2026 → 01/2027</b>Ưu tiên laptop: 5 triệu/tháng; dài hạn 1 triệu; dự phòng 1,2 triệu.</div><div class="step"><b>02/2027 → 07/2027</b>Tập trung mua xe. 5 tháng đầu góp 5,9 triệu/tháng; tháng 7 góp 5,5 triệu.</div><div class="step"><b>Từ 08/2027 → khi đủ dự phòng</b>Dài hạn 4,2 triệu; tối đa 3 triệu dự phòng. Lãi tiền gửi giúp đủ mốc sớm hơn. Phần tiền góp dư trong tháng đạt mốc chuyển sang nhà.</div><div class="step"><b>Từ 11/2028, mỗi 24 tháng</b>Tổng góp nhân 1,05: 7,2 → 7,56 → 7,94 triệu… Mọi khoản dài hạn, dự phòng, nhà tăng cùng tỷ lệ.</div><div class="step"><b>Sau khi dự phòng đủ 108 triệu</b>Dài hạn 4,2 triệu; nhà 3 triệu/tháng (nhân hệ số tăng góp) đến khi đủ chi phí xây theo giá tương lai. Sau khi xây, chuyển phần góp nhà sang hưu: toàn bộ ngân sách tháng vào hưu. Dự phòng tiếp tục giữ lãi; nếu rút dùng cần tính lại.</div></div></div>
+<div class="panel"><h2>Sau khi quỹ nhà hoàn thành</h2><p style="margin:8px 0"><b>Trước mốc:</b> hưu 4,2 triệu + nhà 3 triệu (nhân hệ số tăng góp). <b>Tại mốc:</b> rút quỹ nhà để xây. <b>Từ tháng sau:</b> toàn bộ ngân sách tháng vào hưu + nhà 0.</p><p id="houseNote" style="margin:8px 0"></p></div>
+<div class="panel"><h2>Điều cần rà soát mỗi năm</h2><p style="margin:8px 0">Giữ khoảng 18 triệu dự phòng dễ rút ngay; phần còn lại chia tiền gửi phù hợp thanh khoản. Rà soát mục tiêu 108 triệu theo 6 tháng chi phí thiết yếu thực tế: mốc 108 triệu vẫn cố định trong mô hình; tiền lãi không bảo đảm luôn bù đủ lạm phát. Mục tiêu nhà là 2,5 tỷ theo giá 2026, tăng 3% mỗi năm.</p><p style="margin:8px 0">Trong 9 tháng đầu, đầu tư dài hạn ít hơn lịch cũ 28,8 triệu. Lịch hiện tại không bảo đảm mục tiêu nghỉ hưu cũ hoặc tiến độ xây nhà cũ. Tiền cho laptop và xe nên giữ ổn định, không phụ thuộc lợi nhuận thị trường để mua đúng hạn.</p><p style="margin:8px 0">Các mốc là <b>hoàn thành theo kế hoạch</b>, không phải xác nhận bạn đã thực hiện. Mức sinh lời thực tế có thể cao hoặc thấp hơn mô phỏng. Khi nhà đạt mục tiêu, rút toàn bộ quỹ nhà để xây (phần vượt mục tiêu là đệm phát sinh); số dư quỹ nhà về 0. Từ tháng tiếp theo chuyển khoản góp nhà sang quỹ hưu, toàn bộ ngân sách tháng vào hưu nếu dự phòng đã đủ. Không chuyển tiền đã chi xây nhà sang quỹ hưu, không tính căn nhà vào tài sản tài chính.</p></div></section>
+<div class="footer">Công Vũ · Kế hoạch tháng 11/2026–10/2060 · Giao diện chỉ hiển thị kế hoạch, không kết nối tài khoản ngân hàng.</div>
+</main>
+<script>
+const MONTHS=408,START_AGE=28,STEP_RATE=.05,STEP_MONTHS=24,RESERVE_TARGET=108,HOUSE_PRICE=2500,HOUSE_RATE=.1,INFLATION=.03,LONG_RATES={a:.1,b:.08};
+// Mục tiêu hưu: chi 18 triệu/tháng theo giá hôm nay, tăng 3%/năm đến tuổi 62, tỷ lệ rút khởi điểm 3,5%/năm.
+const RETIRE_TARGET=18*12*(1+INFLATION)**(MONTHS/12)/.035;
+const PURCHASES=[{key:'l',name:'Laptop',cost:15,lastIdx:2},{key:'v',name:'Xe máy',cost:35,lastIdx:8}];
+const FUND_COLORS={l:'#b7802a',v:'#5a74b0',r:'#2f9c86',d:'#0b7a7e',h:'#8f6bb0',warn:'#9a5a06',paid:'#a5b4c0'};
+const ICONS={l:'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',v:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h5l-2-7H9M15 6h2.5l2.5 8"/>',r:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',h:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',d:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'};
+let D=[];let milestones={};let current=0,rate='a',chartWidth=0;
+const nf=new Intl.NumberFormat('vi-VN',{minimumFractionDigits:1,maximumFractionDigits:1}),nfShort=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:1});
+const f=n=>nf.format(n),money=n=>n>=1000?nfShort.format(n/1000)+' tỷ':nfShort.format(n)+' triệu';const $=id=>document.getElementById(id);
+const icon=(key,label)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${label?'role="img" aria-label="'+label+'"':'aria-hidden="true"'}>${ICONS[key]}</svg>`;
+const toMonthlyRate=r=>(1+r)**(1/12)-1,rateLabel=()=>Math.round(LONG_RATES[rate]*100)+'%';
+// Tổng góp tăng kép 5% sau mỗi 24 tháng tính từ 11/2026; mọi quỹ tăng cùng hệ số.
+const budgetScale=idx=>(1+STEP_RATE)**Math.floor(idx/STEP_MONTHS);
+const houseTarget=idx=>HOUSE_PRICE*(1+INFLATION)**((idx+1)/12);
+const ageAt=idx=>START_AGE+(idx+1)/12,ageText=idx=>Math.floor(ageAt(idx))+' tuổi';
+function dateOf(idx){const year=2026+Math.floor((10+idx)/12),month=(10+idx)%12+1,mm=String(month).padStart(2,'0');return{year,month,date:mm+'/'+year,key:year+'-'+mm}}
+
+function simulate(){
+ const ri=toMonthlyRate(Number($('depositRate').value)/100),hi=toMonthlyRate(HOUSE_RATE),la=toMonthlyRate(LONG_RATES.a),lb=toMonthlyRate(LONG_RATES.b);
+ D=[];milestones={};let res=0,house=0,a=0,b=0,paid=0,housePaid=0,houseBuilt=false;const saved={l:0,v:0};
+ for(let idx=0;idx<MONTHS;idx++){
+ const {year,month,date,key}=dateOf(idx),k=budgetScale(idx);let l=0,v=0,r=0,d=0,h=0,note='—';
+ res*=1+ri;house*=1+hi;
+ if(idx<3){l=5;r=1.2;d=1}else if(idx<8){v=5.9;r=.3;d=1}else if(idx===8){v=5.5;r=.7;d=1}else{d=4.2*k;r=Math.min(3*k,Math.max(0,RESERVE_TARGET-res));h=3*k-r}
+ if(houseBuilt){d+=h;h=0}res+=r;house+=h;housePaid+=h;paid+=d;saved.l+=l;saved.v+=v;a=a*(1+la)+d;b=b*(1+lb)+d;
+ const target=houseTarget(idx),unspent=PURCHASES.reduce((s,p)=>s+(idx<p.lastIdx?saved[p.key]:0),0);
+ PURCHASES.forEach(p=>{if(idx===p.lastIdx){note='Đủ tiền '+p.name.toLowerCase();milestones[p.key]={date,value:saved[p.key],idx}}});
+ if(!milestones.reserve&&res>=RESERVE_TARGET-1e-8){milestones.reserve={date,value:res,idx};note='Dự phòng đạt 108 triệu'}
+ // Rút toàn bộ quỹ nhà để xây: vốn và lãi nhà cùng về 0, không để lãi âm.
+ if(!houseBuilt&&house>=target){milestones.house={date,value:house,target,idx};note='Rút quỹ xây nhà; tháng sau chuyển tiền góp sang hưu';house=0;housePaid=0;houseBuilt=true}
+ for(const [s,value] of [['a',a],['b',b]])if(!milestones['retire_'+s]&&value>=RETIRE_TARGET)milestones['retire_'+s]={date,value,idx};
+ D.push({idx,date,key,year,month,age:ageAt(idx),l,v,r,d,h,total:l+v+r+d+h,res,paid,house,housePaid,houseBuilt,a,b,target,unspent,saved:{...saved},note});
+ }
+ if(!milestones.house){let balance=house;const contribution=3*budgetScale(MONTHS-1);for(let idx=MONTHS;idx<MONTHS+192;idx++){balance=balance*(1+hi)+contribution;const target=houseTarget(idx);if(balance>=target){milestones.house={date:dateOf(idx).date,value:balance,target,idx,forecast:true};break}}}
+}
+// Khoản góp thêm đều mỗi tháng từ 11/2026 để bù phần thiếu ở tuổi 62 (giá trị tương lai của chuỗi góp cuối tháng).
+function extraMonthlyFor(gap){const i=toMonthlyRate(LONG_RATES[rate]);return gap*i/((1+i)**MONTHS-1)}
+
+function renderAnswers(){
+ const bike=milestones.v,hm=milestones.house,end=D[MONTHS-1],value=end[rate],gap=RETIRE_TARGET-value,reached=milestones['retire_'+rate];
+ $('ansBike').innerHTML=`<span class="q">${icon('v')}Khi nào mua được xe?</span><div class="a">${bike.date}</div><p>Lúc ${ageText(bike.idx)} · đủ ${money(bike.value)}</p>`;
+ let houseBody=`<div class="a">Chưa đạt</div><p>Quỹ nhà chưa đủ trong khoảng dự phóng</p>`;
+ if(hm)houseBody=hm.forecast?`<div class="a">Sau 62 tuổi</div><p>Dự kiến ${hm.date}, chỉ khi vẫn góp sau nghỉ hưu · cần ${money(hm.target)}</p>`:`<div class="a">${hm.date}</div><p>Lúc ${ageText(hm.idx)} · cần ${money(hm.target)} (2,5 tỷ giá hôm nay)</p>`;
+ $('ansHouse').innerHTML=`<span class="q">${icon('h')}Khi nào xây được nhà?</span>${houseBody}`;
+ const pct=Math.min(100,value/RETIRE_TARGET*100),status=gap>0?`<span class="chip warn">Thiếu ${money(gap)} · đạt ${Math.floor(pct)}%</span>`:`<span class="chip good">Đủ mục tiêu${reached?' từ '+reached.date:''}</span>`;
+ const tip=gap>0?`<p class="tip">Góp thêm khoảng <b>${money(extraMonthlyFor(gap))}/tháng</b> từ 11/2026 để đủ mục tiêu.</p>`:'';
+ $('ansRetire').innerHTML=`<span class="q">${icon('d')}Quỹ hưu lúc 62 tuổi (${end.date}) · kịch bản ${rateLabel()}</span><div class="a">${money(value)}</div><div class="progress" role="progressbar" aria-label="Tiến độ so với mục tiêu hưu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>${status}<p>Cần ${money(RETIRE_TARGET)} · ≈ ${money(value/(1+INFLATION)**(MONTHS/12))} theo sức mua hôm nay · chưa gồm dự phòng ${money(end.res)}</p>${tip}`;
+}
+function renderTimeline(){
+ const end=D[MONTHS-1],hm=milestones.house,short=end[rate]<RETIRE_TARGET;
+ const items=[...PURCHASES.map(p=>({key:p.key,title:'Mua '+p.name.toLowerCase(),m:milestones[p.key],sub:money(p.cost)})),{key:'r',title:'Đủ quỹ dự phòng',m:milestones.reserve,sub:money(RESERVE_TARGET)+' · 6 tháng chi tiêu'},{key:'h',title:'Xây nhà',m:hm,sub:hm?money(hm.target)+(hm.forecast?' · sau 62, có điều kiện':''):'Chưa đạt'},{key:'d',title:'Nghỉ hưu',m:{date:end.date,idx:MONTHS-1},sub:money(end[rate])+(short?' · thiếu '+money(RETIRE_TARGET-end[rate]):' · đủ mục tiêu'),warn:short}];
+ $('timeline').innerHTML=items.map(it=>`<li><span class="tl-icon" style="--c:${FUND_COLORS[it.key]}">${icon(it.key)}</span><div><b>${it.title}</b><small class="${it.warn?'warn':''}">${it.m?ageText(it.m.idx)+' · ':''}${it.sub}</small></div><time>${it.m?it.m.date:'—'}</time></li>`).join('');
+}
+function phaseLabel(x){if(x.idx<3)return 'Ưu tiên laptop';if(x.idx<9)return 'Ưu tiên xe máy';if(x.r>0)return 'Xây dự phòng';return x.h>0?'Tích lũy quỹ nhà':'Dồn quỹ hưu'}
+function renderMonth(){
+ const x=D[current],parts=[['l','Laptop',x.l],['v','Xe máy',x.v],['r','Dự phòng',x.r],['d','Quỹ hưu',x.d],['h','Nhà',x.h]].filter(([, ,val])=>val>1e-9);
+ $('month').value=x.key;$('budget').textContent=money(x.total);$('period').textContent='cần chuyển cuối '+x.date;$('phase').textContent=phaseLabel(x);
+ $('stack').innerHTML=parts.map(([key,,val])=>`<i style="width:${val/x.total*100}%;background:${FUND_COLORS[key]}"></i>`).join('');
+ $('allocations').innerHTML=parts.map(([key,name,val])=>`<li><span class="dot" style="background:${FUND_COLORS[key]}"></span>${name}<b>${f(val)} tr</b></li>`).join('');
+ const houseValue=x.houseBuilt?'Đã xây':money(x.house),houseSub=x.houseBuilt?'quỹ đã rút':'mục tiêu '+money(x.target);
+ $('retireNow').innerHTML=`<span>Quỹ hưu kỳ vọng cuối ${x.date} · ${rateLabel()}</span><b>${money(x[rate])}</b><small>Đã góp ${money(x.paid)} · lãi kỳ vọng ${money(x[rate]-x.paid)} · lúc ${ageText(x.idx)}</small>`;
+ $('balances').innerHTML=`<div><dt>Dự phòng</dt><dd>${money(x.res)}<small>mục tiêu ${money(RESERVE_TARGET)}</small></dd></div><div><dt>Quỹ nhà</dt><dd>${houseValue}<small>${houseSub}</small></dd></div>`;
+ $('prev').disabled=current===0;$('next').disabled=current===MONTHS-1;
+}
+function renderHouseNote(){const m=milestones.house;if(!m){$('houseNote').textContent='Quỹ nhà chưa đạt mục tiêu trong khoảng dự phóng.';return}$('houseNote').textContent=`Với lãi dự phòng ${$('depositRate').value}%, nhà dự kiến đủ vào ${m.date} (khoảng ${f(ageAt(m.idx))} tuổi), cần khoảng ${money(m.target)} và quỹ có khoảng ${money(m.value)}. `+(m.forecast?'Đây là dự phóng có điều kiện tiếp tục góp sau tuổi 62; không thể mặc định còn thu nhập sau khi nghỉ hưu.':'Mốc nằm trước tuổi 62; từ tháng sau phần góp nhà chuyển sang quỹ hưu.')+' Con số tự cập nhật theo lãi suất dự phòng.';}
+
+function chart(){
+ const box=$('chart'),W=Math.max(300,Math.round(box.clientWidth||900));chartWidth=W;
+ const end=D[MONTHS-1],narrow=W<560,H=narrow?230:270,L=narrow?40:54,R=narrow?10:18,T=18,B=30,fs=12;
+ const pts=D.filter((x,i)=>x.month===12||i===MONTHS-1),max=Math.ceil(Math.max(end[rate],RETIRE_TARGET)/2000)*2000;
+ const xx=i=>L+(W-L-R)*i/(pts.length-1),yy=v=>H-B-(H-T-B)*v/max;let svg='';
+ for(let k=0;k<=4;k++){const v=max*k/4;svg+=`<line x1="${L}" x2="${W-R}" y1="${yy(v)}" y2="${yy(v)}" stroke="#e5ebef"/><text x="${L-8}" y="${yy(v)+4}" text-anchor="end" fill="#5d6b78" font-size="${fs}">${nfShort.format(v/1000)}${narrow?'':' tỷ'}</text>`}
+ const ticks=narrow?[0,Math.round((pts.length-1)/2),pts.length-1]:[0,9,19,pts.length-1];
+ const anchorAt=i=>{if(i===0)return 'start';return i===pts.length-1?'end':'middle'};
+ for(const i of ticks)svg+=`<text x="${xx(i)}" y="${H-8}" text-anchor="${anchorAt(i)}" fill="#5d6b78" font-size="${fs}">${pts[i].year}</text>`;
+ const ty=yy(RETIRE_TARGET);svg+=`<line x1="${L}" x2="${W-R}" y1="${ty}" y2="${ty}" stroke="${FUND_COLORS.warn}" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${L+6}" y="${ty-6}" fill="${FUND_COLORS.warn}" font-size="${fs}" font-weight="600">Mục tiêu ${money(RETIRE_TARGET)}</text>`;
+ const line=key=>pts.map((x,i)=>xx(i).toFixed(1)+','+yy(x[key]).toFixed(1)).join(' ');
+ svg+=`<polygon points="${xx(0)},${yy(0)} ${line(rate)} ${xx(pts.length-1)},${yy(0)}" fill="${FUND_COLORS.d}" opacity=".08"/>`;
+ for(const [key,color] of [['paid',FUND_COLORS.paid],[rate,FUND_COLORS.d]]){svg+=`<polyline fill="none" stroke="${color}" stroke-width="3" stroke-linejoin="round" points="${line(key)}"/>`;pts.forEach((x,i)=>{svg+=`<circle cx="${xx(i)}" cy="${yy(x[key])}" r="${narrow?2.5:3}" fill="${color}"><title>${x.date}: ${money(x[key])}</title></circle>`})}
+ svg+=`<circle cx="${xx(pts.length-1)}" cy="${yy(end[rate])}" r="5" fill="${FUND_COLORS.d}" stroke="#fff" stroke-width="2"/>`;
+ box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Quỹ hưu đến năm 2060: kỳ vọng ${money(end[rate])}, mục tiêu ${money(RETIRE_TARGET)}">${svg}</svg>`;
+}
+function annual(){const last=MONTHS-1,EXTRA=new Set([0,1,2,5,6,8,10]);let paidYear=0;let out='';D.forEach((x,i)=>{paidYear+=x.total;if(x.month===12||i===last){const total=x[rate]+x.res+x.house+x.unspent;const cells=[paidYear,x.paid,x[rate]-x.paid,x[rate],x.res,x.housePaid,x.house-x.housePaid,x.house,x.houseBuilt?null:x.target,total,total/(1+INFLATION)**((i+1)/12)];out+=`<tr class="${i===last?'highlight':''}"><td>${x.date}${i===last?' · 62 tuổi':''}</td><td>${f(x.age)}</td>${cells.map((v,c)=>`<td${EXTRA.has(c)?' class="x"':''}${c===3?' class="hl"':''}>${v===null?'Đã xây':f(v)}</td>`).join('')}</tr>`;paidYear=0;}});$('annualRows').innerHTML=out;}
+// Lịch tháng chỉ hiện cột quỹ có góp trong năm đã chọn để bảng gọn; quỹ hưu kỳ vọng luôn hiện, số dư khác là cột phụ.
+function monthly(){const y=$('year').value,rows=D.filter(x=>String(x.year)===y);const cols=[['l','Laptop'],['v','Xe máy'],['r','Dự phòng'],['d','Góp hưu'],['h','Nhà']].filter(([key])=>rows.some(x=>x[key]>1e-9));const extra=[['paid','Quỹ hưu<br>đã góp'],['res','Dự phòng<br>vốn + lãi'],['house','Nhà<br>vốn + lãi']];
+ $('monthlyHead').innerHTML=`<tr><th>Tháng</th>${cols.map(([,n])=>`<th>${n}</th>`).join('')}<th>Tổng góp</th><th class="hl">Quỹ hưu<br>kỳ vọng ${rateLabel()}</th>${extra.map(([,n])=>`<th class="x">${n}</th>`).join('')}<th>Mốc</th></tr>`;
+ $('monthlyRows').innerHTML=rows.map(x=>`<tr class="${x.note!=='—'?'highlight':''}"><td>${x.date}</td>${cols.map(([key])=>`<td>${f(x[key])}</td>`).join('')}<td>${f(x.total)}</td><td class="hl">${f(x[rate])}</td>${extra.map(([key])=>`<td class="x">${f(x[key])}</td>`).join('')}<td class="note">${x.note}</td></tr>`).join('');}
+function renderOverview(){renderAnswers();renderTimeline();renderMonth();document.querySelectorAll('.rateLabel').forEach(el=>{el.textContent=rateLabel()})}
+function setRate(next){rate=next;document.querySelectorAll('[data-rate]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.rate===rate)));renderOverview();chart();annual();monthly()}
+function refreshAll(){simulate();renderOverview();renderHouseNote();chart();annual();monthly()}
+document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(b=>{if(b===btn)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});document.querySelectorAll('.tab').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo(0,0)}));
+document.querySelectorAll('[data-rate]').forEach(btn=>btn.addEventListener('click',()=>setRate(btn.dataset.rate)));
+document.querySelectorAll('.toggle').forEach(btn=>btn.addEventListener('click',()=>{const wrap=$(btn.dataset.table),full=wrap.classList.toggle('full');btn.setAttribute('aria-expanded',String(full));btn.dataset.label??=btn.textContent;btn.textContent=full?'Thu gọn':btn.dataset.label}));
+$('month').addEventListener('change',e=>{const n=D.findIndex(x=>x.key===e.target.value);if(n>=0)current=n;renderMonth()});$('prev').onclick=()=>{current=Math.max(0,current-1);renderMonth()};$('next').onclick=()=>{current=Math.min(MONTHS-1,current+1);renderMonth()};
+$('year').innerHTML=Array.from({length:35},(_,i)=>`<option>${2026+i}</option>`).join('');$('year').onchange=monthly;$('depositRate').onchange=refreshAll;
+if('ResizeObserver' in window)new ResizeObserver(()=>{const w=Math.round($('chart').clientWidth);if(w>0&&w!==chartWidth)requestAnimationFrame(chart)}).observe($('chart'));
+refreshAll();
+</script></body></html>

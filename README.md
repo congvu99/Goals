@@ -1,9 +1,10 @@
 # Goals
 
-Kho tài liệu hướng dẫn triển khai và vận hành.
+Trang kế hoạch tài chính cá nhân bằng HTML/CSS/JavaScript thuần.
 
-- [Deploy LingoBrain lên VPS](docs/lingobrain-prod-deploy-runbook.html): chuẩn bị, triển khai lần đầu, cập nhật, kiểm tra, backup và khôi phục.
+- [Mở ứng dụng](ke-hoach-phan-bo-7-2-trieu.html) trong trình duyệt để chạy tại máy.
+- [Deploy Goals lên VPS](docs/goals-prod-deploy-runbook.html): chuẩn bị, triển khai, kiểm tra, cập nhật và rollback.
 
-Tải repository rồi mở file HTML trong trình duyệt để đọc. GitHub hiển thị mã nguồn HTML; push repository không tự bật hosting hay triển khai ứng dụng lên VPS.
+Repo: `https://github.com/cong-dev-oss/Goals.git`, nhánh `main`. Không cần dependencies, build, backend hoặc database. Các lựa chọn trên giao diện hiện không được lưu bền vững.
 
-Runbook được viết lại từ tài liệu `D:\project\eng\docs\deployment-vps-guide.html`, đối chiếu với `compose.yml`, `deploy/deploy.sh` và `deploy/backup.sh` tại máy local ngày 27/10/2026. Repository ứng dụng là `congvu99/LingoBrain`; repository `cong-dev-oss/Goals` lưu tài liệu.
+Môi trường dự kiến: `/srv/apps/goals`, domain `goals.congvu.duckdns.org`, Caddy dùng chung trên VPS. Kiểm tra IP, domain và mount Caddy trước khi triển khai theo runbook. Push GitHub không tự deploy lên VPS.
