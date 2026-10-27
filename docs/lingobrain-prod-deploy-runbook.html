@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Runbook triển khai LingoBrain bằng Docker Compose và Caddy: deploy, kiểm tra, backup, rollback và chuyển dữ liệu.">
+<title>Deploy LingoBrain lên VPS — Goals</title>
+<style>
+:root{color-scheme:light dark;--bg:#f7f6f2;--fg:#222721;--card:#fff;--line:#ddd;--accent:#17664e}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:32px 20px 72px}h1{line-height:1.2;font-size:clamp(28px,5vw,42px)}h2{margin-top:42px;border-bottom:1px solid var(--line);padding-bottom:8px}h3{margin-bottom:6px}a{color:var(--accent)}nav,.note{padding:16px 20px;background:var(--card);border:1px solid var(--line);border-radius:10px}nav a{display:inline-block;margin:4px 14px 4px 0}.note{border-left:4px solid var(--accent);margin:16px 0}.warn{border-left-color:#c58220}pre{padding:16px;background:#19211f;color:#e9f2ed;overflow:auto;border-radius:8px;line-height:1.6;font-size:13px}code{font-family:Consolas,monospace}p code,li code,td code{overflow-wrap:anywhere}table{border-collapse:collapse;width:100%}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:10px}.table{overflow:auto}.label{font-size:12px;font-weight:bold;letter-spacing:.06em;color:var(--accent)}footer{margin-top:40px;font-size:14px}@media(prefers-color-scheme:dark){:root{--bg:#141916;--fg:#e0e8e2;--card:#1d2520;--line:#39443c;--accent:#77d5b4}}@media print{nav{display:none}pre{white-space:pre-wrap;overflow-wrap:anywhere}body{font-size:11pt}}
+</style>
+</head>
+<body><main>
+<header><p>GOALS · RUNBOOK · 27/10/2026</p><h1>Deploy LingoBrain lên VPS</h1>
+<p>Hướng dẫn cho người vận hành: triển khai lần đầu, cập nhật phiên bản và phục hồi khi có sự cố. Các khối SERVER chạy trong Bash trên VPS; các khối WINDOWS chạy trong PowerShell trên máy của bạn.</p></header>
+<div class="note"><strong>Phạm vi kiểm chứng:</strong> đã đọc tài liệu nguồn và đối chiếu Compose, script deploy, script backup tại máy local. Chưa SSH, build Docker, kiểm tra DNS hay thực hiện deploy trên VPS. Các kết quả bên dưới là tiêu chí cần kiểm tra, không phải báo cáo đã chạy thành công.</div>
+<nav aria-label="Mục lục"><a href="#setup">1. Chuẩn bị</a><a href="#first">2. Deploy lần đầu</a><a href="#verify">3. Nghiệm thu</a><a href="#update">4. Cập nhật</a><a href="#backup">5. Backup</a><a href="#restore">6. Khôi phục</a><a href="#users">7. Người dùng cũ</a><a href="#ai">8. AI tùy chọn</a><a href="#errors">9. Sự cố</a></nav>
+
+<section id="setup"><h2>1. Chuẩn bị và thông số</h2>
+<div class="table"><table><tr><th>Thành phần</th><th>Giá trị theo tài liệu nguồn</th></tr><tr><td>VPS / SSH</td><td><code>62.171.135.240</code> / <code>ssh vps</code>, user <code>deploy</code></td></tr><tr><td>Domain dự kiến</td><td><code>lingobrain.congvu.duckdns.org</code></td></tr><tr><td>Repository ứng dụng</td><td><code>https://github.com/congvu99/LingoBrain.git</code></td></tr><tr><td>Thư mục ứng dụng / backup</td><td><code>/srv/apps/lingobrain</code> / <code>/srv/backups/lingobrain</code></td></tr><tr><td>Luồng truy cập</td><td>HTTPS → Caddy dùng chung → <code>lingobrain:3000</code> → PostgreSQL 17</td></tr><tr><td>Dữ liệu bền vững</td><td>Docker volume <code>lingobrain_pgdata</code></td></tr></table></div>
+<p>Repo <code>Goals</code> chỉ chứa tài liệu. Clone repo ứng dụng ở trên để deploy. Nếu chọn domain khác, thay toàn bộ domain trong cấu hình Caddy và các lệnh kiểm tra.</p>
+<ul><li>VPS đã có Docker Engine và Compose plugin, Git, OpenSSL; SSH bằng key đã hoạt động.</li><li>Caddy dùng chung đang quản lý cổng 80/443, có mạng Docker <code>web</code>, và Caddyfile đã import các file trong <code>/etc/caddy/sites/</code>, tương ứng thư mục host <code>/srv/caddy/conf/sites/</code>.</li><li>User <code>deploy</code> có quyền dùng Docker, ghi vào <code>/srv/apps</code> và thư mục cấu hình site Caddy. DNS của domain phải trỏ đúng VPS; kiểm tra cả AAAA nếu có.</li><li>Chốt trước có giữ tài khoản cũ hay không. Nếu có, xem mục 7 trước khi cho người dùng đăng ký trên VPS mới.</li></ul>
+<p class="label">WINDOWS</p><pre>ssh vps
+# Nếu chưa cấu hình alias vps:
+# ssh deploy@62.171.135.240</pre>
+<p class="label">SERVER — kiểm tra, dừng lại nếu thiếu điều kiện</p><pre>whoami
+docker version
+docker compose version
+docker network inspect web
+test -w /srv/apps
+test -w /srv/caddy/conf/sites
+df -h</pre><p><code>whoami</code> cần trả <code>deploy</code>. Nếu đang dùng root, chuyển bằng <code>su - deploy</code>. Không khởi tạo một Caddy thứ hai chiếm cổng của hệ thống hiện có.</p></section>
+
+<section id="first"><h2>2. Deploy lần đầu</h2><h3>2.1. Clone và tạo cấu hình</h3>
+<p class="label">SERVER</p><pre>cd /srv/apps &amp;&amp; git clone --depth 1 https://github.com/congvu99/LingoBrain.git lingobrain
+cd /srv/apps/lingobrain
+git log --oneline -1
+ls Dockerfile compose.yml deploy/deploy.sh deploy/backup.sh
+(
+  set -eu
+  umask 077
+  if [ ! -e .env ]; then
+    password=$(openssl rand -hex 24)
+    printf 'DB_PASSWORD=%s\n' "$password" &gt; .env
+  fi
+  chmod 600 .env
+  grep -q '^DB_PASSWORD=.' .env
+)
+ls -l .env
+sudo install -d -o deploy -g deploy -m 700 /srv/backups/lingobrain</pre>
+<p>Nếu clone lỗi, dừng để xử lý trước khi chạy tiếp. Nếu thư mục đã có repo, kiểm tra <code>git remote -v</code> và <code>git status</code>, không xóa thư mục để clone lại. Khối tạo <code>.env</code> giữ nguyên file đã tồn tại; nếu thiếu DB_PASSWORD, sửa bằng trình soạn thảo và giữ đúng mật khẩu DB hiện hữu.</p>
+<div class="note warn">PostgreSQL nhận mật khẩu khởi tạo khi volume còn trống. Đổi <code>DB_PASSWORD</code> trong <code>.env</code> không tự đổi mật khẩu DB đã tồn tại. Không commit <code>.env</code> hoặc dùng <code>down -v</code> để chữa lỗi kết nối.</div>
+<h3>2.2. Build và khởi chạy</h3><p class="label">SERVER</p><pre>cd /srv/apps/lingobrain
+bash deploy/deploy.sh
+docker compose ps
+docker compose logs --tail 60 app db</pre>
+<p>Script pull fast-forward, build image theo commit, khởi động dịch vụ rồi kiểm tra <code>/api/words</code> tối đa 45 lượt, cách nhau 2 giây ngoài thời gian request. Thành công in <code>deploy ok: &lt;commit&gt;</code>. App tự nạp bộ từ và audio index từ nội dung repository.</p>
+<p>Nếu script trả lỗi, kiểm tra log trước. Lần đầu chưa có image đã deploy để rollback. Trạng thái container healthy chưa thay thế được kiểm tra API và thao tác người dùng.</p>
+<h3>2.3. Gắn domain vào Caddy dùng chung</h3>
+<p>Kiểm tra DNS đã trỏ đúng VPS. Nếu file site đã tồn tại, lưu bản sao ngoài thư mục được import rồi chỉnh file hiện có; khối dưới chỉ dành cho site mới.</p>
+<p class="label">SERVER — tạo file mới, không ghi đè file cũ</p><pre>(
+  set -eu
+  set -o noclobber
+  cat &gt; /srv/caddy/conf/sites/lingobrain.caddy &lt;&lt;'EOF'
+lingobrain.congvu.duckdns.org {
+    encode zstd gzip
+    reverse_proxy lingobrain:3000
+}
+EOF
+)
+cd /srv/caddy
+docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile &amp;&amp; \
+docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile</pre>
+<p>Chỉ reload khi validate thành công. Nếu báo lỗi, sửa cấu hình và validate lại.</p></section>
+
+<section id="verify"><h2>3. Nghiệm thu sau mỗi lần deploy</h2><p class="label">WINDOWS</p><pre>Resolve-DnsName lingobrain.congvu.duckdns.org
+curl.exe -sS -o NUL -w "%{http_code}\n" https://lingobrain.congvu.duckdns.org/
+curl.exe -sS -o NUL -w "%{http_code}\n" https://lingobrain.congvu.duckdns.org/api/words
+curl.exe -sS -o NUL -w "%{http_code}\n" https://lingobrain.congvu.duckdns.org/.env</pre>
+<p>Ba HTTP status mong đợi lần lượt là <strong>200, 200, 404</strong>. Không dùng <code>-k</code> để bỏ qua lỗi chứng chỉ. Trang chủ 200 chưa chứng minh DB hoạt động; phải kiểm tra <code>/api/words</code>.</p>
+<p class="label">SERVER</p><pre>cd /srv/apps/lingobrain
+docker compose ps
+docker compose port app 3000
+docker compose port db 5432
+sudo ss -tlnp</pre><p>App và DB không được publish cổng ra host: hai lệnh <code>compose port</code> không được trả địa chỉ cổng host (có thể báo chưa publish). Đối chiếu các cổng đang nghe với dịch vụ thực tế trên VPS dùng chung.</p>
+<ul><li>Mở HTTPS, đăng ký/đăng nhập tài khoản thử.</li><li>Ôn một thẻ trên máy A, đăng nhập cùng tài khoản trên máy B và kiểm tra đồng bộ.</li><li>Kiểm tra audio; nếu dùng PWA, thêm vào màn hình chính rồi kiểm tra mở offline sau khi nội dung đã được tải.</li><li>Ghi lại commit, thời điểm deploy, kết quả API và bản backup gần nhất.</li></ul></section>
+
+<section id="update"><h2>4. Cập nhật và rollback ứng dụng</h2><p>Sửa code ở repo ứng dụng rồi push. Theo tài liệu nguồn, khi đổi JS/CSS/HTML cần tăng <code>APP_VERSION</code> trong <code>js/app-storage.js</code> và <code>CACHE</code> trong <code>sw.js</code> cho khớp để PWA nhận bản mới.</p>
+<p class="label">WINDOWS</p><pre>ssh vps "cd /srv/apps/lingobrain &amp;&amp; bash deploy/deploy.sh"</pre>
+<ul><li><code>deploy ok</code>: tiếp tục nghiệm thu mục 3.</li><li><code>already at</code>: commit đã ghi trong <code>.deployed-tag</code>; vẫn cần kiểm tra dịch vụ. Dùng <code>FORCE=1 bash deploy/deploy.sh</code> khi chủ động cần build lại.</li><li><code>deploy FAILED … rolled back</code>: script đã yêu cầu chạy image trước; tự kiểm tra lại API vì script không kiểm tra sức khỏe sau rollback.</li><li><code>deploy khác đang chạy</code>: chờ lần trước kết thúc, không xóa lock để chạy chồng.</li></ul>
+<p>Script backup trước khi thay container nếu đã có <code>.deployed-tag</code>. Rollback image không phục hồi dữ liệu hoặc schema DB. Chỉ rollback khi bản cũ tương thích dữ liệu hiện tại.</p>
+<p class="label">SERVER — rollback thủ công sau khi chọn tag tương thích</p><pre>cd /srv/apps/lingobrain
+docker images lingobrain
+# Thay COMMIT_CU bằng tag thực sự có trong danh sách:
+IMAGE_TAG=COMMIT_CU docker compose up -d --no-build app</pre>
+<p>Chạy lại mục 3. Rollback thủ công không cập nhật <code>.deployed-tag</code> hay tag <code>latest</code>; ghi nhận trạng thái này trước lần deploy sau và dùng <code>FORCE=1</code> nếu script bỏ qua commit cần triển khai lại.</p></section>
+
+<section id="backup"><h2>5. Backup và bản sao ngoài VPS</h2><p>Script dùng <code>pg_dump -Fc</code>, bỏ dữ liệu bảng <code>tts_clips</code>, giữ file dump trong 14 ngày. Đây là dump DB, không chỉ riêng tài khoản và tiến độ.</p>
+<p class="label">SERVER</p><pre>cd /srv/apps/lingobrain
+bash deploy/backup.sh
+ls -lh /srv/backups/lingobrain/
+date
+crontab -e</pre><p>Chỉ thêm một dòng lịch bên dưới vào crontab của user deploy. Giờ 03:45 là giờ của hệ thống cron trên VPS; đối chiếu <code>date</code> trước khi chọn lịch.</p>
+<p class="label">NỘI DUNG CRONTAB</p><pre>45 3 * * * cd /srv/apps/lingobrain &amp;&amp; bash deploy/backup.sh &gt;&gt; /srv/backups/lingobrain/backup.log 2&gt;&amp;1</pre>
+<p>Kiểm tra ngày hôm sau: <code>tail /srv/backups/lingobrain/backup.log</code> phải có <code>backup ok</code> và file dump mới có dung lượng hợp lý.</p>
+<p class="label">WINDOWS — sao chép định kỳ ra ngoài VPS</p><pre>New-Item -ItemType Directory -Force D:\backup\lingobrain
+scp "vps:/srv/backups/lingobrain/lingobrain-*.dump" D:\backup\lingobrain\</pre><p>Bảo vệ thư mục backup vì dump chứa dữ liệu tài khoản và hash mật khẩu. Giữ thêm bản sao <code>.env</code> ở nơi lưu bí mật phù hợp, ngoài Git. Lịch sao chép ra ngoài VPS quyết định lượng dữ liệu có thể mất khi VPS hỏng hoàn toàn; cần thử phục hồi trên môi trường riêng định kỳ.</p></section>
+
+<section id="restore"><h2>6. Khôi phục DB từ backup</h2><div class="note warn">Thao tác này ghi đè dữ liệu tương ứng trong DB đích và cần thời gian dừng ứng dụng. Chọn đúng file dump, tạo backup hiện trạng và thử phục hồi riêng trước khi áp dụng lên production. Không xóa volume.</div>
+<p class="label">SERVER — chuẩn bị</p><pre>cd /srv/apps/lingobrain
+ls -lh /srv/backups/lingobrain/
+docker compose stop app
+bash deploy/backup.sh</pre><p>Chỉ tiếp tục khi backup hiện trạng thành công. Thay đường dẫn mẫu bằng file dump muốn phục hồi, không chọn nhầm bản vừa tạo.</p>
+<p class="label">SERVER — phục hồi; chỉ bật app khi restore thành công</p><pre>docker compose exec -T db pg_restore -U lingo -d lingobrain \
+  --no-owner --no-acl --clean --if-exists --exit-on-error --single-transaction \
+  &lt; /srv/backups/lingobrain/lingobrain-YYYYMMDD-HHMMSS.dump &amp;&amp; \
+docker compose start app</pre><p>Nếu restore lỗi, giữ app dừng và đọc lỗi để xử lý; không coi dữ liệu đã phục hồi. Khi thành công, chạy nghiệm thu mục 3 và kiểm tra tài khoản/tiến độ đại diện. Không dựa vào dữ liệu trên thiết bị người dùng để thay thế backup server.</p></section>
+
+<section id="users"><h2>7. Chuyển người dùng từ Nhân Hòa</h2><p><strong>Giữ tài khoản cũ:</strong> lấy dump từ hệ thống nguồn, ghi nhận phiên bản PostgreSQL và số lượng tài khoản. Thử restore vào DB riêng với phiên bản tương thích trước; chốt cửa sổ ngừng ghi ở nguồn, lấy dump cuối cùng, sao lưu đích rồi thực hiện mục 6. Đối chiếu số tài khoản và kiểm thử đăng nhập trước khi mở lại cho người dùng.</p>
+<p>Quy trình mục 6 dành cho dump custom của PostgreSQL. File SQL/SQL.GZ cần quy trình import riêng đã thử nghiệm; không đổi đuôi file thành .dump, không tự lọc lệnh SQL bằng grep hoặc xóa volume để import.</p>
+<p><strong>Không chuyển DB cũ:</strong> VPS bắt đầu với tài khoản trống. Theo tài liệu nguồn, khi giữ cùng origin, tiến độ local có thể gộp lên sau khi đăng ký lại đúng tên; cần thử trên tài khoản mẫu trước khi hướng dẫn đại trà.</p>
+<p><strong>Đổi domain:</strong> người dùng tải backup ở web cũ, đăng ký/đăng nhập ở web mới rồi khôi phục; cài lại PWA. Theo tài liệu nguồn, bản ghi âm shadowing không nằm trong backup. Giữ web cũ khả dụng trong thời gian chuyển đổi đã thông báo; chỉ đóng hệ thống cũ khi đã kiểm tra dữ liệu và bản sao lưu.</p></section>
+
+<section id="ai"><h2>8. Bật hội thoại AI — tùy chọn</h2><p>Thêm key vào <code>.env</code> bằng trình soạn thảo trên server. Không đưa key vào Git. Hạn mức và model phụ thuộc tài khoản nhà cung cấp; kiểm tra thông tin thực tế trước khi cấu hình.</p>
+<p class="label">FILE .env — thêm vào, giữ DB_PASSWORD hiện có</p><pre>GEMINI_API_KEY=THAY_BANG_KEY_CUA_BAN
+DIALOGUE_DAILY_MAX=10
+# Tùy chọn: GEMINI_MODEL_FALLBACK, DIALOGUE_LEARNER_CONTEXT</pre>
+<p class="label">SERVER</p><pre>cd /srv/apps/lingobrain
+docker compose up -d --force-recreate app
+docker compose exec -T app wget -qO- http://127.0.0.1:3000/api/dialogue
+docker compose logs --tail 50 app</pre><p><code>{"enabled":true}</code> chỉ xác nhận tính năng được bật, chưa chứng minh key hợp lệ. Đăng nhập, ôn ít nhất một thẻ rồi thử tạo hội thoại. Kiểm tra log khi gặp lỗi QUOTA, UPSTREAM, INVALID hoặc BUSY.</p></section>
+
+<section id="errors"><h2>9. Xử lý sự cố</h2><div class="table"><table><tr><th>Hiện tượng</th><th>Kiểm tra và xử lý</th></tr><tr><td>Clone báo thư mục tồn tại</td><td>Kiểm tra remote và trạng thái Git trong thư mục; dùng repo hiện hữu nếu đúng. Không xóa khi chưa biết dữ liệu bên trong.</td></tr><tr><td>Permission denied</td><td>Kiểm tra <code>whoami</code>, owner của đúng thư mục và quyền Docker. Nếu vừa thêm nhóm docker, đăng nhập SSH lại. Không chown cả /srv/backups của mọi ứng dụng.</td></tr><tr><td>Thiếu mạng web</td><td>Kiểm tra mạng của Caddy dùng chung và cấu hình Compose trước khi tạo/kết nối mạng.</td></tr><tr><td>Git không fast-forward</td><td>Chạy <code>git status</code>, <code>git diff</code>, lưu thay đổi server rồi xử lý xung đột. Không reset --hard để bỏ qua thay đổi chưa rõ nguồn gốc.</td></tr><tr><td>502</td><td>Kiểm tra app bằng <code>docker compose ps</code> và log; Caddy phải chung mạng web, proxy tới <code>lingobrain:3000</code>.</td></tr><tr><td>Đăng nhập hoặc /api/words trả 503</td><td>Xem log app/db, trạng thái DB, lỗi seed và mật khẩu. Nếu .env bị thay đổi, khôi phục mật khẩu đúng hoặc thực hiện đổi mật khẩu DB có kiểm soát.</td></tr><tr><td>429 khi đăng nhập</td><td>Đối chiếu chuỗi proxy với TRUST_PROXY_HOPS (Compose hiện đặt 1). Không tăng số hop khi chưa kiểm tra đường truy cập trực tiếp và proxy tin cậy.</td></tr><tr><td>PWA còn bản cũ</td><td>Kiểm tra APP_VERSION/CACHE, commit đã push và commit server đã deploy, đóng/mở lại app. Backup tiến độ trước khi xóa dữ liệu trình duyệt.</td></tr><tr><td>Đầy ổ đĩa</td><td>Chạy <code>df -h</code>, <code>docker system df</code>; chỉ dọn cache/image đã xác nhận không cần rollback. Không prune volume dữ liệu.</td></tr></table></div></section>
+<footer>Nguồn: <code>D:\project\eng\docs\deployment-vps-guide.html</code>. Đối chiếu local: <code>compose.yml</code>, <code>deploy/deploy.sh</code>, <code>deploy/backup.sh</code> ngày 27/10/2026. Khi script ứng dụng thay đổi, cần cập nhật lại runbook.</footer>
+</main></body></html>
